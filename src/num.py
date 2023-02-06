@@ -34,6 +34,7 @@ class NUM:
         Add 'n', update lo,hi and stuff needed for standard deviation
         '''
         # print("num being added : {} with type {}".format(n, type(n)))
+        # try:  
         if(n!='?'):
             self.n=self.n+1
             d=n-self.mu
@@ -41,6 +42,8 @@ class NUM:
             self.m2=self.m2+d*(n-self.mu)
             self.lo= min(n,self.lo)
             self.hi= max(n,self.hi)
+        # except Exception:
+        #     print("Trying to add {} of type {}".format(n, type(n)))
         
 
     def mid(self) -> float:

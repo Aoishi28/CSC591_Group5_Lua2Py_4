@@ -1,89 +1,7 @@
 import math
 import re
-from data import DATA
-
-def transpose(t):
-    u=[]
-    for i in range(1,len(t[1])+1):
-        u[1]=[]
-        for j in range(1,len(t)+1):
-            u[i][j]=t[j][i]
-
-    return u
-
-def repCols(cols):
-    cols=copy(cols)
-    for _,col in enumerate(cols):
-        col[len(col)] = str(col[1])+":"+str(col[len(col)])
-        for j in range(2,len(col)+1):
-            col[j-1]=col[j]
-        col[len(col)]=None
-    cols.insert(1, kap(cols[1], lambda k, v: "Num" + str(k)))
-    cols[1][len(cols[1])]="thingX"
-    return DATA(cols)
-
-def repRows(t,rows,u):
-    rows=copy(rows)
-    for j,s in enumerate(rows[len(rows)]):
-        rows[1][j]=str(rows[1][j])+":"+str(s)
-    rows[len(rows)] = None
-    for n,row in enumerate(rows):
-        if(n==1):
-            row.append("thingX")
-        else:
-            u=t.rows[len(t.rows)-n+2]
-            row.append(u[len(u)])
-    
-    return DATA(rows)
-
-def repPlace(data):
-    n=20
-    g=[]
-    for i in range(1,n+2):
-        g[i]=[]
-        for j in range(1,n+2):
-            g[i][j]=" "
-
-    maxy=0
-    print("")
-    for r,row in enumerate(data.rows):
-        c=chr(64+r)
-        print(c,last(row.cells))
-        x=int(row.x*n/1)
-        y=int(row.y*n/1)
-        maxy=max(maxy,y+1)
-        g[y+1][x+1]=c
-    print("")
-    for y in range(1,maxy+1):
-        print(g[y])
-
-def repgrid(sFile):
-    t=exec(open(sFile).read())
-    rows=repRows(t,transpose(t.cols))
-    cols=repCols(t.cols)
-    show(rows.cluster())
-    show(cols.cluster())
-    repPlace(rows)
-
-
-def show(node,what,cols,nPlaces,lvl=0):
-    '''
-    prints the tree generated from `DATA:tree`
-    '''
-    if(node):
-        if(lvl):
-            lvl=lvl
-        else:
-            lvl=0
-
-    if node:
-        print("| " * lvl + str(len(node["data"].rows)) + "  ")
-        if('left' not in node.keys() or lvl==0):
-            print (node["data"].stats("mid",node["data"].cols.y,nPlaces)) 
-        else:
-            print("")
-        show(node.get("left"), what,cols, nPlaces, lvl+1)
-        show(node.get("right"), what,cols,nPlaces, lvl+1)
+import copy as copy_module
+import json
 
 seed = 937162211    
 # Utility function for numerics
@@ -100,7 +18,7 @@ def rand(lo = None, hi = None):
     return lo+(hi-lo)*seed/2147483647
 
 
-def rnd(n,nPlaces):
+def rnd(n,nPlaces = None):
     if(nPlaces is None):
         nPlaces=3
     mult=math.pow(10,nPlaces)
@@ -135,11 +53,11 @@ def kap( t, fun):
     u = []
     for k,v in enumerate(t):
         o = fun(k,v)
-        v,k = o[0], o[1]
-        if k != 0:
+        v,k = fun(k,v)
+        if k != None:
             u[k] = v
         else:
-            u[1+len(u)] = v  
+            u.append(v)  
     return u
 
 # sort the list with given comparator
@@ -166,13 +84,10 @@ def many(t,n):
     return u
 
 def last(t):
-    return t[len(t)]
+    return t[len(t)-1]
 
 def copy(t):
-    if type(t)!=list:
-        return t
-    u=kap(t, lambda k,v : copy(v),copy(k))
-    return ..... # to be edited
+    return copy_module.deepcopy(t)
 
 # Utility functions for Strings
 
@@ -190,25 +105,58 @@ def o(t, isKeys = None):
 
 
 
-def coerce( s):
-    def fun(s1):
-        if(s1=='true'):
-            return True
-        elif(s1=='false'):
-            return False
-        return s1
-    try:
+def coerce(s):
+    if(s=='true'):
+        return True
+    elif(s=='false'):
+        return False
+    elif s.isdigit():
         return int(s)
-    except ValueError:
-        try:
-            return float(s)
-        except ValueError:
-            return fun(re.search('^\s*(.+?)\s*$',s).group((1)))
-    except Exception as e:
-        print("Error 101 : corece_file_crashed")
+    elif '.' in s and s.replace('.','').isdigit():
+        return float(s)
+    else:
+        return s
 
 
 
 def oo(t):
-    # print(o(t))
-    return t
+    # get all the attributes of the object
+    object_attributes = t.__dict__
+    # get class name of the object
+    object_attributes['a'] = t.__class__.__name__
+    # get an unique id for the object
+    object_attributes['id'] = id(t)
+    print(dict(sorted(object_attributes.items())))
+
+
+def dofile(file):
+    with open(file, 'r', encoding = 'utf-8') as f:
+        content  = f.read()
+        content = re.findall(r'(return\s+[^.]+)', content)[0]
+        map = {'return ' : '', '{' : '[', '}' : ']','=':':', '[\n':'{\n', '\n]':'\n}', '_':'"_"', '\'':'"'}
+        for k,v in map.items():
+            content = content.replace(k, v)
+        content = re.sub("(\w+):",r'"\1":',content)
+        parsed_json = json.loads(content)
+        return parsed_json
+
+def show(node, what = None, cols = None, nPlaces = None, lvl = None):
+    if node:
+        lvl = lvl if lvl else 0
+        print("|.. "*lvl, end = "")
+        # if 'left' not in node.keys():
+        if not node.get('left'):
+            print(node['data'].rows[-1].cells[-1])
+        else:
+            print("{:.1f}".format(rnd(100*node['c'])))
+        show(node.get('left'), what, cols, nPlaces, lvl+1)
+        show(node.get('right'), what, cols, nPlaces, lvl+1)
+
+def transpose(t):
+    u=[]
+    for i in range(len(t[1])):
+        u.append([])
+        for j in range(len(t)):
+            u[i].append(t[j][i])
+
+    return u
