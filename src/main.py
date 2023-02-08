@@ -1,50 +1,41 @@
-import sys
-from utils import coerce
-import re
+#!/usr/bin/env python3
 
+__author__ = "NCSU CSC 591 021 Spring 23 Group-3"
+__version__ = "1.0.0"
+__license__ = "MIT"
 
+from utils import *
+from test_hw4 import *
 
-def cli(options):
-    
-    vals=options.keys()
-    arg=sys.argv
-    
-    arg=arg[1:]
-    for k in vals:
-        v=str(options[k])
-        for n,x in enumerate(arg):
-            if x=="-"+k[0] or x=="--"+k:
-                if    v=="False": v="True"
-                elif  v=="True": v="False"
-                else: v= arg[n+1]
-        options[k] = coerce(v)
-
-    return options
-
-def settings(help):
-    try:
-        return dict(re.findall("\n[\s]+[-][\S]+[\s]+[-][-]([\S]+)[^\n]+= ([\S]+)", help))
-    except Exception as e:
-        print("Error occurred while parsing the help string:\n", e)
-
-def main(options,help,funs):
-    
-    saved = dict()
-    fails = 0
+def main():
+    saved,fails={},0
     for k,v in cli(settings(help)).items():
-        options[k] = v
+        the[k] = v
         saved[k] = v
-    
-    if options['help']:
+    if the['help'] == True:
         print(help)
     else:
-        for what, fun in funs.items():
-            if options['go'] == 'all' or what == options['go']:
+        for what, fun in egs.items():
+            if the['go'] == 'all' or the['go'] == what:
                 for k,v in saved.items():
-                    options[k] = v
-                Seed = options['seed']
-                if funs[what]() == False:
+                    the[k] = v
+                Seed = the['seed']
+                if egs[what]() == False:
                     fails += 1
-                    print("❌ fail:", what)
+                    print('❌ fail:', what)
                 else:
-                    print("✅ pass:", what)
+                    print('✅ pass:', what)
+    sys.exit(fails)
+
+if __name__ == '__main__':
+    eg('the', 'show settings', test_the)
+    eg('copy','check copy', test_copy)
+    eg('sym', 'check syms', test_sym)
+    eg('num', 'check nums', test_num)
+    eg('repcols', 'checking repcols', test_repCols)
+    eg('synonyms','checking repcols cluster', test_synonyms)
+    eg('reprows','checking reprows', test_repRows)
+    eg('prototypes','checking reprows cluster', test_prototypes)
+    eg('position','where\'s wally', test_position)
+    eg('every','the whole enchilada', test_every)
+    main()

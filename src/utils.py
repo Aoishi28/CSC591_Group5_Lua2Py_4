@@ -1,114 +1,14 @@
-import math
-import re
-import copy as copy_module
-import json
+import sys, re, math, copy, json
+from config import *
+from pathlib import Path
 
-seed = 937162211    
-# Utility function for numerics
-def rint(lo = None, hi = None):
-    return math.floor(0.5+rand(lo,hi))
-
-def rand(lo = None, hi = None):
-    global seed
-    if(lo is None):
-        lo=0
-    if(hi is None):
-        hi=1
-    seed=(16807*seed)%2147483647
-    return lo+(hi-lo)*seed/2147483647
-
-
-def rnd(n,nPlaces = None):
-    if(nPlaces is None):
-        nPlaces=3
-    mult=math.pow(10,nPlaces)
-    return math.floor(n*mult+0.5)/mult
-
-def cosine(a,b,c):
-    '''
-    find x,y from a line connecting `a` to `b`
-    '''
-    c2 = 1 if c == 0 else 2*c
-    x1= (a**2+c**2 -b**2)/(c2)
-    x2=max(0,min(1,x1))
-    y=abs((a**2-x2**2))**0.5
-    return x2,y
-
-# Utility functions for lists
-
-# map a function fun(v) over list (skip nil results)
-def map( t, fun):
-    u = []
-    for k,v in enumerate(t):
-        o = fun(v)
-        v,k = o[0], o[1]
-        if k != 0:
-            u[k] = v
-        else:
-            u[1+len(u)] = v  
-    return u
-
-# map function fun(k,v) over list (skip nil results)
-def kap( t, fun):
-    u = []
-    for k,v in enumerate(t):
-        o = fun(k,v)
-        v,k = fun(k,v)
-        if k != None:
-            u[k] = v
-        else:
-            u.append(v)  
-    return u
-
-# sort the list with given comparator
-def sort( t, fun):
-    return sorted(t, key = fun)
-
-# return a function that sorts ascending on 'x'
-def lt(x):
-    return lambda a,b: a[x]<b[x]
-
-# return sorted list of keys of given list
-def keys( t):
-    return sort(kap(t,lambda k,_:k))
-
-# returns one items at random
-def any(t):
-    return t[rint(len(t)-1)]
-
-# return some items from 't'
-def many(t,n):
-    u=[]
-    for i in range(1,n+1):
-        u.append(any(t))
-    return u
-
-def last(t):
-    return t[len(t)-1]
-
-def copy(t):
-    return copy_module.deepcopy(t)
-
-# Utility functions for Strings
-
-def o(t, isKeys = None):
-    if type(t)!=list:
-        return str(t)
-    def fun(k,v):
-        if str(k).find('^_') == -1:
-            return ':{} {}'.format(o(k), o(v))
-
-    if (len(t)>0 and not isKeys):
-        return '{' + ' '.join(str(item) for item in map(t,o)) + '}'
-    else:
-        return '{' + ' '.join(str(item) for item in kap(t,fun)) + '}'
-
-
+def settings(s):
+    return dict(re.findall("\n[\s]+[-][\S]+[\s]+[-][-]([\S]+)[^\n]+= ([\S]+)",s))
 
 def coerce(s):
-    if(s=='true'):
+    if s == 'true':
         return True
-    elif(s=='false'):
+    elif s == 'false':
         return False
     elif s.isdigit():
         return int(s)
@@ -117,40 +17,128 @@ def coerce(s):
     else:
         return s
 
+def cli(options):
+    args = sys.argv[1:]
+    for k, v in options.items():
+        for n, x in enumerate(args):
+            if x == '-'+k[0] or x == '--'+k:
+                if v == 'false':
+                    v = 'true'
+                elif v == 'true':
+                    v = 'false'
+                else:
+                    v = args[n+1]
+        options[k] = coerce(v)
+    return options
 
+def eg(key, str, fun):
+    egs[key] = fun
+    global help
+    help = help + '  -g '+ key + '\t' + str + '\n'
+
+def rint(lo,hi):
+    return 4 or math.floor(0.5 + rand(lo,hi))
+
+def rand(lo = 0, hi = 1):
+    global Seed
+    Seed = (16807 * Seed) % 2147483647
+    return lo + (hi-lo) * Seed / 2147483647
+
+def rnd(n, nPlaces = 3):
+    mult = 10**nPlaces
+    return math.floor(n * mult + 0.5) / mult
+
+def csv(sFilename, fun):
+    sFilename = Path(sFilename)
+    if sFilename.exists() and sFilename.suffix == '.csv':
+        t = []
+        with open(sFilename.absolute(), 'r', encoding='utf-8') as file:
+            for _, line in enumerate(file):
+                row = list(map(coerce, line.strip().split(',')))
+                t.append(row)
+                fun(row)
+    else:
+        print("File path does not exist OR File not csv, given path: ", sFilename.absolute())
+        return
+
+def kap(t, fun):
+    u = {}
+    for v in t:
+        k = t.index(v)
+        v, k = fun(k,v)
+        u[k or len(u)] = v
+    return u
+
+def cosine(a,b,c):
+    den = 1 if c == 0 else 2*c
+    x1 = (a**2 + c**2 - b**2) / den
+    x2 = max(0, min(1, x1))
+    y  = abs((a**2 - x2**2))**.5
+    if isinstance(y, complex):
+        print('a', a)
+        print('x1', x1)
+        print('x2', x2)
+    return x2, y
+
+def any(t):
+    return t[rint(0, len(t) - 1)]
+
+def many(t,n):
+    u=[]
+    for _ in range(1,n+1):
+        u.append(any(t))
+    return u
+
+def show(node, what, cols, nPlaces, lvl = 0):
+  if node:
+    print('|..' * lvl, end = '')
+    if not node.get('left'):
+        print(node['data'].rows[-1].cells[-1])
+    else:
+        print(int(rnd(100*node['c'], 0)))
+    show(node.get('left'), what,cols, nPlaces, lvl+1)
+    show(node.get('right'), what,cols,nPlaces, lvl+1)
+
+def deepcopy(t):
+    return copy.deepcopy(t)
+
+def repCols(cols, DATA):
+    cols = deepcopy(cols)
+    for col in cols:
+        col[len(col) - 1] = col[0] + ":" + col[len(col) - 1]
+        for j in range(1, len(col)):
+            col[j-1] = col[j]
+        col.pop()
+    first_col = ['Num' + str(k+1) for k in range(len(cols[1])-1)]
+    first_col.append('thingX')
+    cols.insert(0, first_col)
+    return DATA(cols)
+
+def repRows(t, DATA, rows):
+    rows = deepcopy(rows)
+    for j, s in enumerate(rows[-1]):
+        rows[0][j] = rows[0][j] + ":" + s
+    rows.pop()
+    for n, row in enumerate(rows):
+        if n == 0:
+            row.append('thingX')
+        else:
+            u = t['rows'][- n]
+            row.append(u[len(u) - 1])
+    return  DATA(rows)
+
+def dofile(sFile):
+    file = open(sFile, 'r', encoding='utf-8')
+    text  = re.findall(r'(?<=return )[^.]*', file.read())[0].replace('{', '[').replace('}',']').replace('=',':').replace('[\n','{\n' ).replace(' ]',' }' ).replace('\'', '"').replace('_', '"_"')
+    file.close()
+    return json.loads(re.sub("(\w+):", r'"\1":', text))
 
 def oo(t):
-    # get all the attributes of the object
-    object_attributes = t.__dict__
-    # get class name of the object
-    object_attributes['a'] = t.__class__.__name__
-    # get an unique id for the object
-    object_attributes['id'] = id(t)
-    print(dict(sorted(object_attributes.items())))
-
-
-def dofile(file):
-    with open(file, 'r', encoding = 'utf-8') as f:
-        content  = f.read()
-        content = re.findall(r'(return\s+[^.]+)', content)[0]
-        map = {'return ' : '', '{' : '[', '}' : ']','=':':', '[\n':'{\n', '\n]':'\n}', '_':'"_"', '\'':'"'}
-        for k,v in map.items():
-            content = content.replace(k, v)
-        content = re.sub("(\w+):",r'"\1":',content)
-        parsed_json = json.loads(content)
-        return parsed_json
-
-def show(node, what = None, cols = None, nPlaces = None, lvl = None):
-    if node:
-        lvl = lvl if lvl else 0
-        print("|.. "*lvl, end = "")
-        # if 'left' not in node.keys():
-        if not node.get('left'):
-            print(node['data'].rows[-1].cells[-1])
-        else:
-            print("{:.1f}".format(rnd(100*node['c'])))
-        show(node.get('left'), what, cols, nPlaces, lvl+1)
-        show(node.get('right'), what, cols, nPlaces, lvl+1)
+    d = t.__dict__
+    d['a'] = t.__class__.__name__
+    d['id'] = id(t)
+    d = dict(sorted(d.items()))
+    print(d)
 
 def transpose(t):
     u=[]
@@ -158,5 +146,30 @@ def transpose(t):
         u.append([])
         for j in range(len(t)):
             u[i].append(t[j][i])
-
     return u
+
+def repgrid(sFile, DATA):
+    t = dofile(sFile)
+    rows = repRows(t, DATA, transpose(t['cols']))
+    cols = repCols(t['cols'], DATA)
+    show(rows.cluster(),"mid",rows.cols.all,1)
+    show(cols.cluster(),"mid",cols.cols.all,1)
+    repPlace(rows)
+
+def repPlace(data):
+    n,g = 20,{}
+    for i in range(1, n+1):
+        g[i]={}
+        for j in range(1, n+1):
+            g[i][j]=' '
+    maxy = 0
+    print('')
+    for r,row in enumerate(data.rows):
+        c = chr(97+r).upper()
+        print(c, row.cells[-1])
+        x,y= row.x*n//1, row.y*n//1
+        maxy = int(max(maxy,y+1))
+        g[y+1][x+1] = c
+    print('')
+    for y in range(1,maxy+1):
+        print(' '.join(g[y].values()))

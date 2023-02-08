@@ -1,43 +1,40 @@
 import utils
 from data import DATA
 
-def repCols(cols):
+def repCols(cols, DATA):
     cols = utils.copy(cols)
-    for _,col in enumerate(cols):
-        col[len(col)-1] = col[0] + ":" + col[len(col)-1]
-        for j in range(1,len(col)):
-            col[j-1]=col[j]
-        # col[len(col)-1]=None
+    for col in cols:
+        col[len(col) - 1] = col[0] + ":" + col[len(col) - 1]
+        for j in range(1, len(col)):
+            col[j-1] = col[j]
         col.pop()
-    processed_cols1 = []
-    for i in range(len(cols[1])-1):
-        processed_cols1.append("Num{}".format(i+1))
-    processed_cols1.append('thingX')
-    cols.insert(0, processed_cols1)
+    first_col = ['Num' + str(k+1) for k in range(len(cols[1])-1)]
+    first_col.append('thingX')
+    cols.insert(0, first_col)
     return DATA(cols)
 
-def repRows(t,rows):
+def repRows(t, DATA, rows):
     rows = utils.copy(rows)
-    for j,s in enumerate(rows[-1]):
-        rows[0][j]=str(rows[0][j])+":"+str(s)
+    for j, s in enumerate(rows[-1]):
+        rows[0][j] = rows[0][j] + ":" + s
     rows.pop()
-    for n,row in enumerate(rows):
-        if(n==0):
-            row.append("thingX")
+    for n, row in enumerate(rows):
+        if n == 0:
+            row.append('thingX')
         else:
-            u=t["rows"][len(t["rows"])-n]
-            row.append(u[len(u)-1])
-    
-    return DATA(rows)
+            u = t['rows'][- n]
+            row.append(u[len(u) - 1])
+    return  DATA(rows)
 
-def repgrid(sFile):
+
+
+def repgrid(sFile, DATA):
     t = utils.dofile(sFile)
-    rows = repRows(t, utils.transpose(t['cols']))
-    cols = repCols(t['cols'])
-    utils.show(rows.cluster(),"mid",rows.cols.all,1)
-    utils.show(cols.cluster(),"mid",rows.cols.all,1)
+    rows = repRows(t, DATA, utils.transpose(t['cols']))
+    cols = repCols(t['cols'], DATA)
+    utils.show(rows.cluster(), "mid", rows.cols.all, 1)
+    utils.show(cols.cluster(), "mid", cols.cols.all, 1)
     repPlace(rows)
-
 def repPlace(data):
     n=20
     g={}
