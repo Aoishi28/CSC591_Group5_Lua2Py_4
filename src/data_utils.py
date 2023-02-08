@@ -58,3 +58,5 @@ def repPlace(data):
     print("")
     for y in range(1,maxy+1):
         print(" ".join(g[y].values()))
+
+        
