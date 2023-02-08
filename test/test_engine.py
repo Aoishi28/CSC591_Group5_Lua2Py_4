@@ -102,14 +102,10 @@ tester.eg("copy", "check copy", test2)
 tester.eg("sym", "check syms", test3)
 tester.eg("num", "check nums", test4)
 tester.eg("repcols", "checking repcols", test5)
-
-tester.eg("reprows", "checking reprows", test7)
-
-tester.eg("position", "where's wally", test9)
-
-## Failing test cases
 tester.eg("synonyms", "checking repcols cluster", test6)
+tester.eg("reprows", "checking reprows", test7)
 tester.eg("prototypes", "checking reprows cluster", test8)
+tester.eg("position", "where's wally", test9)
 tester.eg("every", "the whole enchilada", test10)
 
 main.main(the, tester.help, tester.egs)
