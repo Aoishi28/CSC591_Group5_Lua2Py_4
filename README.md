@@ -18,6 +18,10 @@
   
 [![DOI](https://zenodo.org/badge/596317318.svg)](https://zenodo.org/badge/latestdoi/596317318)
 
+[![Tests](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/test.yml/badge.svg)](https://Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/test.yml)
+[![Python Style Checker](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_style_checker.yml/badge.svg)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_style_checker.yml)
+[![Python Syntax Checker](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_syntax_checker.yml/badge.svg)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_syntax_checker.yml)
+[![Pylint](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/pylint.yml/badge.svg)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/pylint.yml)
 
 [![GitHub issues](https://img.shields.io/github/issues-raw/Aoishi28/CSC591_Group5_Lua2Py_4?style=plastic)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/issues)
 [![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/Aoishi28/CSC591_Group5_Lua2Py_4?style=plastic)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/issues?q=is%3Aissue+is%3Aclosed)
