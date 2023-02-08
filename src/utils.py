@@ -142,15 +142,14 @@ def dofile(file):
 
 def show(node, what = None, cols = None, nPlaces = None, lvl = None):
     if node:
-        lvl = lvl if lvl else 0
-        print("|.. "*lvl, end = "")
-        # if 'left' not in node.keys():
-        if not node.get('left'):
-            print(node['data'].rows[-1].cells[-1])
+        lvl = lvl or 0
+        print("|.." * lvl, str(len(node["data"].rows)), " ")
+        if not node.get("left", None) or lvl == 0:
+            print(o(node["data"].stats("mid", node["data"].cols.y, nPlaces)))
         else:
-            print("{:.1f}".format(rnd(100*node['c'])))
-        show(node.get('left'), what, cols, nPlaces, lvl+1)
-        show(node.get('right'), what, cols, nPlaces, lvl+1)
+            print("")
+        show(node.get("left", None), what, cols, nPlaces, lvl + 1)
+        show(node.get("right", None), what, cols, nPlaces, lvl + 1)
 
 def transpose(t):
     u=[]
