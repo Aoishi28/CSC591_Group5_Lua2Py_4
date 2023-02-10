@@ -17,6 +17,7 @@
 [![language](https://img.shields.io/github/languages/top/Aoishi28/CSC591_Group5_Lua2Py)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py/search?l=python)<br/>
   
 [![DOI](https://zenodo.org/badge/596317318.svg)](https://zenodo.org/badge/latestdoi/596317318)
+[![codecov](https://codecov.io/gh/Aoishi28/CSC591_Group5_Lua2Py_4/branch/main/graph/badge.svg?token=)](https://codecov.io/gh/Aoishi28/CSC591_Group5_Lua2Py_4)<br/>
 
 [![Tests](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/test.yml/badge.svg)](https://Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/test.yml)
 [![Python Style Checker](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_style_checker.yml/badge.svg)](https://github.com/Aoishi28/CSC591_Group5_Lua2Py_4/actions/workflows/python_style_checker.yml)
